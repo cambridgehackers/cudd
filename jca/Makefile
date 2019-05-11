@@ -1,4 +1,5 @@
 #
+CPPFLAGS := -std=c++11 -I../cudd
 all:
-	g++ -I../cudd jca.cpp ../cudd/.libs/libcudd.a
+	g++ $(CPPFLAGS) jca.cpp ../cudd/.libs/libcudd.a
 	./a.out

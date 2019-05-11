@@ -1,28 +1,46 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <map>
 #include "cudd.h"
 
+typedef struct {
+    int index;
+    DdNode *node;
+} MapItem;
+
+static int varIndex;
+static std::map<std::string, MapItem *> varMap;
+static DdManager * mgr;
+#define MAX_NAME_COUNT 100
+char const *inames[MAX_NAME_COUNT];
+
+DdNode *getVar(char const *name)
+{
+  if (!varMap[name]) {
+    varMap[name] = new MapItem;
+    varMap[name]->index = varIndex;
+    varMap[name]->node = Cudd_bddIthVar(mgr, varIndex);
+    inames[varIndex] = name;
+    varIndex++;
+  }
+  return varMap[name]->node;
+}
+
 int main(void) {
-  /* Get set. */
-  DdManager * mgr = Cudd_Init(4,0,CUDD_UNIQUE_SLOTS,CUDD_CACHE_SLOTS,0);
-  DdNode *a = Cudd_bddIthVar(mgr, 0);
-  DdNode *c = Cudd_bddIthVar(mgr, 1);
-  DdNode *b = Cudd_bddIthVar(mgr, 2);
-  DdNode *d = Cudd_bddIthVar(mgr, 3);
-  char const * const inames[] = {"a", "c", "b", "d"};
+  mgr = Cudd_Init(MAX_NAME_COUNT,0,CUDD_UNIQUE_SLOTS,CUDD_CACHE_SLOTS,0);
+  DdNode *b = getVar("b");
+  DdNode *d = getVar("d");
+  DdNode *c = getVar("c");
+  DdNode *a = getVar("a");
   /* Build BDD. */
-  DdNode * tmp = Cudd_bddIte(mgr, c, b, Cudd_Not(d));
+  DdNode * tmp = Cudd_bddIte(mgr, b, c, Cudd_Not(d));
   Cudd_Ref(tmp);
   DdNode * f = Cudd_bddOr(mgr, a, tmp);
   Cudd_Ref(f);
   Cudd_RecursiveDeref(mgr, tmp);
-  /* Inspect it. */
-  printf("f");
-  Cudd_PrintSummary(mgr, f, 4, 0);
-  Cudd_bddPrintCover(mgr, f, f);
   char * fform = Cudd_FactoredFormString(mgr, f, inames);
   printf("%s\n", fform);
-  /* Break up camp and go home. */
   free(fform);
   Cudd_RecursiveDeref(mgr, f);
   int err = Cudd_CheckZeroRef(mgr);
