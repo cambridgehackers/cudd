@@ -1,0 +1,9 @@
+#
+*.o
+*.a
+*.lo
+*.tst
+*.pdf
+*.log
+*.test
+*.trs
