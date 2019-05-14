@@ -943,13 +943,13 @@ Cudd_FactoredFormString(
     }
     /* Call the function that really gets the job done. */
     if (f == DD_ONE(dd)) {
-        err = appendStringStringStream(stream, "true");
+        err = appendStringStringStream(stream, "1");
         if (err) {
             deleteStringStream(stream);
             return(0);
         }
     } else if (f == Cudd_Not(DD_ONE(dd)) || f == DD_ZERO(dd)) {
-        err = appendStringStringStream(stream, "false");
+        err = appendStringStringStream(stream, "0");
         if (err) {
             deleteStringStream(stream);
             return(0);
