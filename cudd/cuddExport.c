@@ -955,6 +955,7 @@ Cudd_FactoredFormString(
             return(0);
         }
     } else {
+        appendStringStringStream(stream, "(");
         err = appendStringStringStream(
           stream, Cudd_IsComplement(f) ?
           (Cudd_bddIsVar(dd, Cudd_Regular(f)) ? "!" : "!(") : "");
@@ -962,7 +963,9 @@ Cudd_FactoredFormString(
             deleteStringStream(stream);
             return(0);
         }
+        appendStringStringStream(stream, "(");
         retval = ddDoFactoredFormString(dd,Cudd_Regular(f),stream,inames);
+        appendStringStringStream(stream, ")");
         if (retval == 0) {
             deleteStringStream(stream);
             return(0);
@@ -974,6 +977,7 @@ Cudd_FactoredFormString(
             deleteStringStream(stream);
             return(0);
         }
+        appendStringStringStream(stream, ")");
     }
     str = stringFromStringStream(stream);
     deleteStringStream(stream);
@@ -1429,6 +1433,7 @@ ddDoFactoredFormString(
     T = cuddT(f);
     E = cuddE(f);
     if (T != DD_ZERO(dd)) {
+        appendStringStringStream(stream, "(");
 	if (E != DD_ONE(dd)) {
 	    if (names != NULL) {
                 err = appendStringStringStream(stream, names[f->index]);
@@ -1444,16 +1449,20 @@ ddDoFactoredFormString(
             if (err) return(0);
             err = appendStringStringStream(stream, Cudd_bddIsVar(dd, T) ? "" : "(");
 	    if (err) return(0);
+            appendStringStringStream(stream, "(");
 	    retval = ddDoFactoredFormString(dd,T,stream,names);
+            appendStringStringStream(stream, ")");
 	    if (retval != 1) return(retval);
             err = appendStringStringStream(stream, Cudd_bddIsVar(dd, T) ? "" : ")");
 	    if (err) return(0);
 	}
+        appendStringStringStream(stream, ")");
 	if (E == Cudd_Not(DD_ONE(dd)) || E == DD_ZERO(dd)) return(1);
         err = appendStringStringStream(stream,  " | ");
 	if (err) return(0);
     }
     E = Cudd_Regular(E);
+    appendStringStringStream(stream, "(");
     if (T != DD_ONE(dd)) {
         err = appendCharStringStream(stream, '!');
         if (err) return(0);
@@ -1468,16 +1477,21 @@ ddDoFactoredFormString(
     }
     if (E != DD_ONE(dd)) {
         err = appendStringStringStream(stream, T != DD_ONE(dd) ? " & " : "");
+        appendStringStringStream(stream, "(");
         if (err) return(0);
         err = appendStringStringStream(stream, E != cuddE(f) ? "!" : "");
         if (err) return(0);
         err = appendStringStringStream(stream, Cudd_bddIsVar(dd, E) ? "" : "(");
         if (err) return(0);
+        appendStringStringStream(stream, "(");
 	retval = ddDoFactoredFormString(dd,E,stream,names);
+        appendStringStringStream(stream, ")");
 	if (retval != 1) return(retval);
         err = appendStringStringStream(stream, Cudd_bddIsVar(dd, E) ? "" : ")");
 	if (err) return(0);
+        appendStringStringStream(stream, ")");
     }
+    appendStringStringStream(stream, ")");
     return(1);
 
 } /* end of ddDoFactoredFormString */
