@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include "cudd.h"
+#include "cuddInt.h"
 
 typedef struct {
     int index;
@@ -34,9 +35,23 @@ int main(void) {
   DdNode *c = getVar("c");
   DdNode *a = getVar("a");
   /* Build BDD. */
+#if 0
   DdNode * tmp = Cudd_bddIte(mgr, b, c, Cudd_Not(d));
   Cudd_Ref(tmp);
   DdNode * f = Cudd_bddOr(mgr, a, tmp);
+#else
+  DdNode * tmp = Cudd_bddAnd(mgr, a, DD_ONE(mgr));
+  Cudd_Ref(tmp);
+  tmp = Cudd_bddAnd(mgr, b, tmp);
+  Cudd_Ref(tmp);
+  tmp = Cudd_bddAnd(mgr, a, tmp);
+  Cudd_Ref(tmp);
+  tmp = Cudd_bddAnd(mgr, b, tmp);
+  Cudd_Ref(tmp);
+  tmp = Cudd_bddAnd(mgr, b, DD_ONE(mgr));
+  Cudd_Ref(tmp);
+  DdNode * f = Cudd_bddAnd(mgr, a, tmp);
+#endif
   Cudd_Ref(f);
   Cudd_RecursiveDeref(mgr, tmp);
   char * fform = Cudd_FactoredFormString(mgr, f, inames);
